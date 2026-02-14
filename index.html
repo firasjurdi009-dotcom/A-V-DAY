@@ -35,49 +35,77 @@
       transition: 0.2s ease;
     }
 
-    #yesBtn {
+    .yesBtn {
       background-color: #ff4d6d;
       color: white;
-      left: 40%;
     }
 
-    #noBtn {
+    .noBtn {
       background-color: #444;
       color: white;
-      left: 55%;
     }
   </style>
 </head>
 <body>
 
-  <h1>Will you be my Valentine? 💖</h1>
+  <h1 id="question">Oumenia, do you love me? 💖</h1>
 
   <div class="buttons">
-    <button id="yesBtn" onclick="sayYes()">Yes 💘</button>
-    <button id="noBtn">No 😅</button>
+    <button id="yesBtn" class="yesBtn" style="left: 40%;">Yes 💘</button>
+    <button id="noBtn" class="noBtn" style="left: 55%;">No 😅</button>
   </div>
 
   <script>
+    const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
+    const question = document.getElementById("question");
 
-    function moveButton() {
-      const x = Math.random() * (window.innerWidth - 120);
-      const y = Math.random() * (window.innerHeight - 60);
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
-    }
+    let noClickCount = 0;
 
-    noBtn.addEventListener("mouseenter", moveButton);
-    noBtn.addEventListener("click", moveButton);
+    // First question: love
+    noBtn.addEventListener("click", () => {
+      noClickCount++;
+      if (noClickCount === 1) {
+        noBtn.textContent = "Think again 🤔";
+      } else if (noClickCount === 2) {
+        noBtn.textContent = "Are you sure? 😅";
+      } else if (noClickCount === 3) {
+        noBtn.textContent = "I know you love me, stop playing around 💖";
+      }
+    });
 
-    function sayYes() {
-      document.body.innerHTML = `
-        <h1 style="margin-top:200px; color:white;">
-          💖 Welcome to Oumenia 💖<br>
-          Best decision ever 😍
-        </h1>
-      `;
-    }
+    yesBtn.addEventListener("click", () => {
+      // Transition to Valentine question
+      question.textContent = "Will you be my Valentine? 💖";
+      yesBtn.textContent = "Yes 💘";
+      noBtn.textContent = "No 😅";
+
+      // Reset positions
+      yesBtn.style.left = "40%";
+      noBtn.style.left = "55%";
+      noBtn.style.top = "0px";
+
+      // Make "No" button move randomly
+      function moveButton() {
+        const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+        const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+        noBtn.style.left = x + "px";
+        noBtn.style.top = y + "px";
+      }
+
+      noBtn.addEventListener("mouseenter", moveButton);
+      noBtn.addEventListener("click", moveButton);
+
+      // Final Yes click
+      yesBtn.onclick = () => {
+        document.body.innerHTML = `
+          <h1 style="margin-top:200px; color:white;">
+            💖 Welcome to Oumenia 💖<br>
+            Best decision ever 😍
+          </h1>
+        `;
+      };
+    });
   </script>
 
 </body>
