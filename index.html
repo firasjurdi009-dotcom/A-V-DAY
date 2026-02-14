@@ -59,7 +59,7 @@ button{
   min-width:240px;
 }
 
-button:hover{transform:scale(1.12)}
+button:hover, button:active{transform:scale(1.12)}
 
 .yes{background:#ff4d6d;color:white}
 .no{background:#333;color:white}
@@ -116,7 +116,9 @@ const yes=document.getElementById("yes");
 const no=document.getElementById("no");
 const btns=document.getElementById("btns");
 
+function startMusic(){ fadeInMusic(); }
 document.body.addEventListener("click", startMusic, { once:true });
+document.body.addEventListener("touchstart", startMusic, { once:true });
 
 function show(el){
   el.classList.remove("show");
@@ -139,14 +141,14 @@ show(q);
 yes.onclick=()=>{
   y++;
   const t=["Really 💘","Really really 💘","Really really really 💘","I know you do 💖"];
-  if(y<=4)yes.textContent=t[y-1];
-  if(y===4)setTimeout(()=>transition(loveAmount),5500);
+  if(y<=4) yes.textContent=t[y-1];
+  if(y===4) setTimeout(()=>transition(loveAmount),5500);
 };
 
 no.onclick=()=>{
   n++;
   const t=["Think again 🤔","Are you sure? 😅","I know you love me stop playing around 💖"];
-  if(n<=3)no.textContent=t[n-1];
+  if(n<=3) no.textContent=t[n-1];
 };
 
 /* LOVE AMOUNT */
@@ -182,12 +184,15 @@ function valentine(){
     c++;
     const t=["You sure? 😏","100% sure? 😏","Okay say yes 😌","YES 💘"];
     yes.textContent=t[Math.min(c-1,3)];
-    if(c>=4)setTimeout(()=>transition(finale),5500);
+    if(c>=4) setTimeout(()=>transition(finale),5500);
   };
 
-  no.onmouseenter=()=>{
-    no.style.transform=`translateX(${Math.random()*40-20}px)`;
+  // Mobile-friendly "No" avoidance
+  const moveNoButton = () => {
+    no.style.transform=`translateX(${Math.random()*60-30}px) translateY(${Math.random()*20-10}px)`;
   };
+  no.onmouseenter = moveNoButton;
+  no.addEventListener("touchstart", moveNoButton);
 }
 
 /* FINAL */
@@ -200,27 +205,45 @@ function finale(){
   "I’ve never been happier. Thank you for being part of my life. I’m so glad I met you — you make the happiest (horniest, minor details 😏) man on earth. I love you so much ❤️";
   show(sub);
   hearts();
+
+  // AFTER 10 SECONDS SHOW CONGRATS PAGE
+  setTimeout(congratulationsPage, 10000);
+}
+
+/* CONGRATULATIONS PAGE */
+function congratulationsPage(){
+  btns.innerHTML="";
+  q.textContent="🎉 Congratulations! 🎉";
+  sub.textContent="You are now mine forever ❤️";
+  show(q);
+  show(sub);
 }
 
 /* HEARTS */
 function hearts(){
   const c=document.getElementById("hearts");
   const x=c.getContext("2d");
-  c.width=innerWidth;c.height=innerHeight;
+  function resizeHeartsCanvas(){ c.width=window.innerWidth; c.height=window.innerHeight; }
+  resizeHeartsCanvas();
+  window.addEventListener("resize", resizeHeartsCanvas);
+
   let p=[];
   setInterval(()=>{
-    for(let i=0;i<6;i++){
-      p.push({x:Math.random()*c.width,y:c.height+20,a:1,s:Math.random()*18+10});
+    let count = window.innerWidth < 600 ? 3 : 6; // scale for small screens
+    for(let i=0;i<count;i++){
+      p.push({x:Math.random()*c.width,y:c.height+20,a:1,s:Math.random()*(c.width/40)+10});
     }
   },500);
+
   function anim(){
     x.clearRect(0,0,c.width,c.height);
     p.forEach((e,i)=>{
-      e.y-=1.2;e.a-=0.002;
+      e.y-=1.2;
+      e.a-=0.002;
       x.fillStyle=`rgba(255,90,140,${e.a})`;
       x.font=e.s+"px Arial";
       x.fillText("💖",e.x,e.y);
-      if(e.a<=0)p.splice(i,1);
+      if(e.a<=0) p.splice(i,1);
     });
     requestAnimationFrame(anim);
   }
@@ -230,12 +253,18 @@ function hearts(){
 /* BACKGROUND PARTICLES */
 const bgCanvas=document.getElementById("bgCanvas");
 const bgCtx=bgCanvas.getContext("2d");
-bgCanvas.width=innerWidth;
-bgCanvas.height=innerHeight;
 
+function resizeBGCanvas(){ 
+  bgCanvas.width=window.innerWidth; 
+  bgCanvas.height=window.innerHeight; 
+}
+resizeBGCanvas();
+window.addEventListener("resize", resizeBGCanvas);
+
+let particleCount = window.innerWidth < 600 ? 40 : 80;
 let particles=[];
-for(let i=0;i<80;i++){
-  particles.push({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,r:Math.random()*2,d:Math.random()*1});
+for(let i=0;i<particleCount;i++){
+  particles.push({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,r:Math.random()*(window.innerWidth/300)+1,d:Math.random()*1});
 }
 
 function animateBG(){
