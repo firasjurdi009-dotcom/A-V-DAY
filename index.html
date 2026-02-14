@@ -104,10 +104,12 @@ canvas{
   <button id="no" class="no">No 😅</button>
 </div>
 
+<audio id="bgMusic" loop>
+  <source src="your-music-file.mp3" type="audio/mpeg">
+</audio>
+
 <canvas id="bgCanvas"></canvas>
 <canvas id="hearts"></canvas>
-
-<script src="music.js"></script>
 
 <script>
 const q=document.getElementById("q");
@@ -115,10 +117,23 @@ const sub=document.getElementById("sub");
 const yes=document.getElementById("yes");
 const no=document.getElementById("no");
 const btns=document.getElementById("btns");
+const bgMusic=document.getElementById("bgMusic");
 
-function startMusic(){ fadeInMusic(); }
-document.body.addEventListener("click", startMusic, { once:true });
-document.body.addEventListener("touchstart", startMusic, { once:true });
+// Play music on first tap/click (mobile-friendly)
+function fadeInMusic(){
+  if(bgMusic.paused){
+    bgMusic.volume=0;
+    bgMusic.play().catch(()=>{}); // catch autoplay errors
+    let vol=0;
+    const fade=setInterval(()=>{
+      vol+=0.02;
+      if(vol>=1){ vol=1; clearInterval(fade); }
+      bgMusic.volume=vol;
+    },100);
+  }
+}
+document.body.addEventListener("click", fadeInMusic, { once:true });
+document.body.addEventListener("touchstart", fadeInMusic, { once:true });
 
 function show(el){
   el.classList.remove("show");
@@ -187,15 +202,15 @@ function valentine(){
     if(c>=4) setTimeout(()=>transition(finale),5500);
   };
 
-  // Mobile-friendly "No" avoidance
-  const moveNoButton = () => {
+  // Mobile-friendly No button
+  const moveNo = () => {
     no.style.transform=`translateX(${Math.random()*60-30}px) translateY(${Math.random()*20-10}px)`;
   };
-  no.onmouseenter = moveNoButton;
-  no.addEventListener("touchstart", moveNoButton);
+  no.onmouseenter=moveNo;
+  no.addEventListener("touchstart", moveNo);
 }
 
-/* FINAL */
+/* FINAL ANNIVERSARY PAGE */
 function finale(){
   fadeInMusic();
   btns.innerHTML="";
@@ -206,11 +221,11 @@ function finale(){
   show(sub);
   hearts();
 
-  // AFTER 10 SECONDS SHOW CONGRATS PAGE
-  setTimeout(congratulationsPage, 10000);
+  // After 10 seconds, show final congratulations page
+  setTimeout(congratulationsPage,10000);
 }
 
-/* CONGRATULATIONS PAGE */
+/* FINAL CONGRATULATIONS PAGE */
 function congratulationsPage(){
   btns.innerHTML="";
   q.textContent="🎉 Congratulations! 🎉";
@@ -223,13 +238,13 @@ function congratulationsPage(){
 function hearts(){
   const c=document.getElementById("hearts");
   const x=c.getContext("2d");
-  function resizeHeartsCanvas(){ c.width=window.innerWidth; c.height=window.innerHeight; }
-  resizeHeartsCanvas();
-  window.addEventListener("resize", resizeHeartsCanvas);
+  function resizeHearts(){ c.width=window.innerWidth; c.height=window.innerHeight; }
+  resizeHearts();
+  window.addEventListener("resize", resizeHearts);
 
   let p=[];
   setInterval(()=>{
-    let count = window.innerWidth < 600 ? 3 : 6; // scale for small screens
+    let count = window.innerWidth<600 ? 3 : 6;
     for(let i=0;i<count;i++){
       p.push({x:Math.random()*c.width,y:c.height+20,a:1,s:Math.random()*(c.width/40)+10});
     }
@@ -254,14 +269,11 @@ function hearts(){
 const bgCanvas=document.getElementById("bgCanvas");
 const bgCtx=bgCanvas.getContext("2d");
 
-function resizeBGCanvas(){ 
-  bgCanvas.width=window.innerWidth; 
-  bgCanvas.height=window.innerHeight; 
-}
-resizeBGCanvas();
-window.addEventListener("resize", resizeBGCanvas);
+function resizeBG(){ bgCanvas.width=window.innerWidth; bgCanvas.height=window.innerHeight; }
+resizeBG();
+window.addEventListener("resize", resizeBG);
 
-let particleCount = window.innerWidth < 600 ? 40 : 80;
+let particleCount = window.innerWidth<600 ? 40 : 80;
 let particles=[];
 for(let i=0;i<particleCount;i++){
   particles.push({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,r:Math.random()*(window.innerWidth/300)+1,d:Math.random()*1});
