@@ -14,24 +14,23 @@ body{
   overflow:hidden;
   text-align:center;
   font-family:Arial,sans-serif;
-  background:linear-gradient(270deg,#ff758c,#ff7eb3,#ffc3a0);
-  background-size:600% 600%;
-  animation:bg 20s ease infinite;
+  background:linear-gradient(-45deg,#2b0f2f,#4a0e4e,#1a0826,#3b0a40);
+  background-size:400% 400%;
+  animation:bgMove 18s ease infinite;
   transition:filter 2s ease, opacity 2s ease;
 }
 
-@keyframes bg{
+@keyframes bgMove{
   0%{background-position:0% 50%}
   50%{background-position:100% 50%}
   100%{background-position:0% 50%}
 }
 
 .dim{filter:brightness(0.6)}
-.fade{opacity:0}
 
 h1,p{
   color:white;
-  text-shadow:0 0 20px rgba(255,255,255,.4);
+  text-shadow:0 0 18px rgba(255,255,255,.4);
   opacity:0;
   transform:translateY(25px);
   transition:.9s ease;
@@ -46,6 +45,8 @@ h1,p{
   align-items:center;
   gap:18px;
   margin-top:40px;
+  z-index:2;
+  position:relative;
 }
 
 button{
@@ -103,11 +104,10 @@ canvas{
   <button id="no" class="no">No 😅</button>
 </div>
 
-<audio id="music" loop>
-  <source src="music.mp3" type="audio/mpeg">
-</audio>
-
+<canvas id="bgCanvas"></canvas>
 <canvas id="hearts"></canvas>
+
+<script src="music.js"></script>
 
 <script>
 const q=document.getElementById("q");
@@ -115,21 +115,8 @@ const sub=document.getElementById("sub");
 const yes=document.getElementById("yes");
 const no=document.getElementById("no");
 const btns=document.getElementById("btns");
-const music=document.getElementById("music");
 
-music.volume=0;
-
-function fadeMusic(to){
-  const i=setInterval(()=>{
-    music.volume=Math.min(1,Math.max(0,music.volume+(to?0.02:-0.02)));
-    if(music.volume===to)clearInterval(i);
-  },120);
-}
-
-document.body.addEventListener("click",()=>{
-  music.play();
-  fadeMusic(0.6);
-},{once:true});
+document.body.addEventListener("click", startMusic, { once:true });
 
 function show(el){
   el.classList.remove("show");
@@ -144,6 +131,7 @@ function transition(next){
   },2000);
 }
 
+/* QUESTION 1 */
 let y=0,n=0;
 q.textContent="Oumenia, do you love me? 💖";
 show(q);
@@ -161,6 +149,7 @@ no.onclick=()=>{
   if(n<=3)no.textContent=t[n-1];
 };
 
+/* LOVE AMOUNT */
 function loveAmount(){
   q.textContent="How much do you love me? 🥺";
   show(q);
@@ -178,12 +167,16 @@ function loveAmount(){
   });
 }
 
+/* VALENTINE */
 function valentine(){
   btns.innerHTML="";
-  btns.appendChild(yes);btns.appendChild(no);
-  yes.textContent="Yes 💘";no.textContent="No 😅";
+  btns.appendChild(yes);
+  btns.appendChild(no);
+  yes.textContent="Yes 💘";
+  no.textContent="No 😅";
   q.textContent="Will you be my Valentine? 💖";
   show(q);
+
   let c=0;
   yes.onclick=()=>{
     c++;
@@ -191,13 +184,15 @@ function valentine(){
     yes.textContent=t[Math.min(c-1,3)];
     if(c>=4)setTimeout(()=>transition(finale),5500);
   };
+
   no.onmouseenter=()=>{
     no.style.transform=`translateX(${Math.random()*40-20}px)`;
   };
 }
 
+/* FINAL */
 function finale(){
-  fadeMusic(1);
+  fadeInMusic();
   btns.innerHTML="";
   q.textContent="💖 Happy Anniversary My Love 💖";
   show(q);
@@ -205,13 +200,9 @@ function finale(){
   "I’ve never been happier. Thank you for being part of my life. I’m so glad I met you — you make the happiest (horniest, minor details 😏) man on earth. I love you so much ❤️";
   show(sub);
   hearts();
-  const save=document.createElement("button");
-  save.textContent="💌 Save this moment";
-  save.className="save";
-  save.onclick=()=>alert("Screenshot this moment 💖");
-  btns.appendChild(save);
 }
 
+/* HEARTS */
 function hearts(){
   const c=document.getElementById("hearts");
   const x=c.getContext("2d");
@@ -235,6 +226,34 @@ function hearts(){
   }
   anim();
 }
+
+/* BACKGROUND PARTICLES */
+const bgCanvas=document.getElementById("bgCanvas");
+const bgCtx=bgCanvas.getContext("2d");
+bgCanvas.width=innerWidth;
+bgCanvas.height=innerHeight;
+
+let particles=[];
+for(let i=0;i<80;i++){
+  particles.push({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,r:Math.random()*2,d:Math.random()*1});
+}
+
+function animateBG(){
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+  bgCtx.fillStyle="rgba(255,255,255,0.05)";
+  bgCtx.beginPath();
+  particles.forEach(p=>{
+    bgCtx.moveTo(p.x,p.y);
+    bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+  });
+  bgCtx.fill();
+  particles.forEach(p=>{
+    p.y-=p.d;
+    if(p.y<0){p.y=bgCanvas.height;p.x=Math.random()*bgCanvas.width;}
+  });
+  requestAnimationFrame(animateBG);
+}
+animateBG();
 </script>
 
 </body>
