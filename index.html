@@ -85,12 +85,6 @@ canvas{
   width:100%;height:100%;
   pointer-events:none;
 }
-
-.save{
-  margin-top:30px;
-  background:white;
-  color:#ff4d6d;
-}
 </style>
 </head>
 
@@ -123,7 +117,7 @@ const bgMusic=document.getElementById("bgMusic");
 function fadeInMusic(){
   if(bgMusic.paused){
     bgMusic.volume=0;
-    bgMusic.play().catch(()=>{}); // catch autoplay errors
+    bgMusic.play().catch(()=>{}); 
     let vol=0;
     const fade=setInterval(()=>{
       vol+=0.02;
@@ -145,7 +139,7 @@ function transition(next){
   setTimeout(()=>{
     document.body.classList.remove("dim");
     next();
-  },2000);
+  },500);
 }
 
 /* QUESTION 1 */
@@ -157,7 +151,7 @@ yes.onclick=()=>{
   y++;
   const t=["Really 💘","Really really 💘","Really really really 💘","I know you do 💖"];
   if(y<=4) yes.textContent=t[y-1];
-  if(y===4) setTimeout(()=>transition(loveAmount),5500);
+  if(y===4) setTimeout(()=>transition(loveAmount),500);
 };
 
 no.onclick=()=>{
@@ -178,7 +172,7 @@ function loveAmount(){
     d.onclick=()=>{
       q.textContent="You don’t love me anymore 😢";
       show(q);
-      setTimeout(()=>transition(valentine),5500);
+      setTimeout(()=>transition(valentine),500);
     };
     btns.appendChild(d);
   });
@@ -199,11 +193,12 @@ function valentine(){
     c++;
     const t=["You sure? 😏","100% sure? 😏","Okay say yes 😌","YES 💘"];
     yes.textContent=t[Math.min(c-1,3)];
-    if(c>=4) setTimeout(()=>transition(finale),5500);
+    if(c>=4){
+      setTimeout(()=>transition(finale),500);
+    }
   };
 
-  // Mobile-friendly No button
-  const moveNo = () => {
+  const moveNo=()=>{
     no.style.transform=`translateX(${Math.random()*60-30}px) translateY(${Math.random()*20-10}px)`;
   };
   no.onmouseenter=moveNo;
@@ -216,12 +211,10 @@ function finale(){
   btns.innerHTML="";
   q.textContent="💖 Happy Anniversary My Love 💖";
   show(q);
-  sub.textContent=
-  "I’ve never been happier. Thank you for being part of my life. I’m so glad I met you — you make the happiest (horniest, minor details 😏) man on earth. I love you so much ❤️";
+  sub.textContent="I’ve never been happier. Thank you for being part of my life. I’m so glad I met you — you make the happiest (horniest, minor details 😏) man on earth. I love you so much ❤️";
   show(sub);
   hearts();
 
-  // After 10 seconds, show final congratulations page
   setTimeout(congratulationsPage,10000);
 }
 
@@ -232,6 +225,7 @@ function congratulationsPage(){
   sub.textContent="You are now mine forever ❤️";
   show(q);
   show(sub);
+  hearts();
 }
 
 /* HEARTS */
@@ -244,7 +238,7 @@ function hearts(){
 
   let p=[];
   setInterval(()=>{
-    let count = window.innerWidth<600 ? 3 : 6;
+    let count = window.innerWidth<600? 3:6;
     for(let i=0;i<count;i++){
       p.push({x:Math.random()*c.width,y:c.height+20,a:1,s:Math.random()*(c.width/40)+10});
     }
@@ -268,12 +262,11 @@ function hearts(){
 /* BACKGROUND PARTICLES */
 const bgCanvas=document.getElementById("bgCanvas");
 const bgCtx=bgCanvas.getContext("2d");
-
 function resizeBG(){ bgCanvas.width=window.innerWidth; bgCanvas.height=window.innerHeight; }
 resizeBG();
 window.addEventListener("resize", resizeBG);
 
-let particleCount = window.innerWidth<600 ? 40 : 80;
+let particleCount=window.innerWidth<600?40:80;
 let particles=[];
 for(let i=0;i<particleCount;i++){
   particles.push({x:Math.random()*bgCanvas.width,y:Math.random()*bgCanvas.height,r:Math.random()*(window.innerWidth/300)+1,d:Math.random()*1});
