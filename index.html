@@ -51,6 +51,17 @@
       background-color: #444;
       color: white;
     }
+
+    /* Canvas for fireworks */
+    #fireworksCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
@@ -61,6 +72,8 @@
     <button id="yesBtn" class="yesBtn" style="left: 40%;">Yes 💘</button>
     <button id="noBtn" class="noBtn" style="left: 55%;">No 😅</button>
   </div>
+
+  <canvas id="fireworksCanvas"></canvas>
 
   <script>
     const yesBtn = document.getElementById("yesBtn");
@@ -116,16 +129,85 @@
           noBtn.addEventListener("mouseenter", moveButton);
           noBtn.addEventListener("click", moveButton);
 
-          // Final Valentine Yes click
+          // Final Valentine Yes click shows anniversary message with fireworks
           yesBtn.onclick = () => {
             document.body.innerHTML = `
               <h1 style="margin-top:150px; color:white;">💖 Happy Anniversary, my love 💖</h1>
               <p>I've never been happier. Thank you for being a part of my life. I'm so glad I met you—you make the happiest (horniest, minor details, don't think about it) man on earth. I love you so much ❤️</p>
+              <canvas id="fireworksCanvas"></canvas>
             `;
+            startFireworks();
           };
-        }, 300); // small delay for smooth transition
+        }, 300);
       }
     });
+
+    // FIREWORKS ANIMATION
+    function startFireworks() {
+      const canvas = document.getElementById('fireworksCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      class Particle {
+        constructor(x, y, color) {
+          this.x = x;
+          this.y = y;
+          this.color = color;
+          this.radius = 2 + Math.random() * 2;
+          this.speedX = random(-5, 5);
+          this.speedY = random(-5, 5);
+          this.alpha = 1;
+          this.decay = random(0.01, 0.03);
+        }
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          this.alpha -= this.decay;
+        }
+        draw() {
+          ctx.save();
+          ctx.globalAlpha = this.alpha;
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      function createFirework() {
+        const x = random(100, canvas.width - 100);
+        const y = random(50, canvas.height / 2);
+        const colors = ['#ff4d6d', '#ffec61', '#42e695', '#ff7eb3', '#f9c74f'];
+        for (let i = 0; i < 50; i++) {
+          particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
+        }
+      }
+
+      function animate() {
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.update();
+          p.draw();
+          if (p.alpha <= 0) particles.splice(i, 1);
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      setInterval(createFirework, 500);
+      animate();
+    }
   </script>
 
 </body>
