@@ -20,6 +20,13 @@
       color: #fff;
     }
 
+    p {
+      color: #fff;
+      font-size: 20px;
+      margin-top: 20px;
+      padding: 0 20px;
+    }
+
     .buttons {
       margin-top: 50px;
       position: relative;
@@ -61,8 +68,9 @@
     const question = document.getElementById("question");
 
     let noClickCount = 0;
+    let yesClickCount = 0;
 
-    // First question: love
+    // First question: No button
     noBtn.addEventListener("click", () => {
       noClickCount++;
       if (noClickCount === 1) {
@@ -74,37 +82,49 @@
       }
     });
 
+    // First question: Yes button
     yesBtn.addEventListener("click", () => {
-      // Transition to Valentine question
-      question.textContent = "Will you be my Valentine? 💖";
-      yesBtn.textContent = "Yes 💘";
-      noBtn.textContent = "No 😅";
+      yesClickCount++;
+      if (yesClickCount === 1) {
+        yesBtn.textContent = "Really 💘";
+      } else if (yesClickCount === 2) {
+        yesBtn.textContent = "Really really 💘";
+      } else if (yesClickCount === 3) {
+        yesBtn.textContent = "Really really really 💘";
+      } else if (yesClickCount === 4) {
+        yesBtn.textContent = "I know you do 💘";
 
-      // Reset positions
-      yesBtn.style.left = "40%";
-      noBtn.style.left = "55%";
-      noBtn.style.top = "0px";
+        // After final Yes click, transition to Valentine question
+        setTimeout(() => {
+          question.textContent = "Will you be my Valentine? 💖";
+          yesBtn.textContent = "Yes 💘";
+          noBtn.textContent = "No 😅";
 
-      // Make "No" button move randomly
-      function moveButton() {
-        const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-        const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-        noBtn.style.left = x + "px";
-        noBtn.style.top = y + "px";
+          // Reset positions
+          yesBtn.style.left = "40%";
+          noBtn.style.left = "55%";
+          noBtn.style.top = "0px";
+
+          // Make "No" button move randomly
+          function moveButton() {
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+            noBtn.style.left = x + "px";
+            noBtn.style.top = y + "px";
+          }
+
+          noBtn.addEventListener("mouseenter", moveButton);
+          noBtn.addEventListener("click", moveButton);
+
+          // Final Valentine Yes click
+          yesBtn.onclick = () => {
+            document.body.innerHTML = `
+              <h1 style="margin-top:150px; color:white;">💖 Happy Anniversary, my love 💖</h1>
+              <p>I've never been happier. Thank you for being a part of my life. I'm so glad I met you—you make the happiest (horniest, minor details, don't think about it) man on earth. I love you so much ❤️</p>
+            `;
+          };
+        }, 300); // small delay for smooth transition
       }
-
-      noBtn.addEventListener("mouseenter", moveButton);
-      noBtn.addEventListener("click", moveButton);
-
-      // Final Yes click
-      yesBtn.onclick = () => {
-        document.body.innerHTML = `
-          <h1 style="margin-top:200px; color:white;">
-            💖 Welcome to Oumenia 💖<br>
-            Best decision ever 😍
-          </h1>
-        `;
-      };
     });
   </script>
 
