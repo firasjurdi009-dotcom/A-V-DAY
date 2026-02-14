@@ -1,252 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Oumenia 💖</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      text-align: center;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #ffdde1, #ee9ca7);
-      height: 100vh;
-      margin: 0;
-      overflow: hidden;
-      transition: background 1s ease; /* smooth background change */
-      position: relative;
-    }
+<meta charset="UTF-8">
+<title>Oumenia 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    h1 {
-      margin-top: 120px;
-      font-size: 40px;
-      color: #fff;
-      z-index: 2;
-      position: relative;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s, transform 0.8s;
-    }
+<style>
+*{box-sizing:border-box}
 
-    h1.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+body{
+  margin:0;
+  height:100vh;
+  overflow:hidden;
+  text-align:center;
+  font-family:'Arial',sans-serif;
+  background:linear-gradient(270deg,#ff758c,#ff7eb3,#ffc3a0,#ff758c);
+  background-size:600% 600%;
+  animation:bg 18s ease infinite;
+}
 
-    p {
-      color: #fff;
-      font-size: 20px;
-      margin-top: 20px;
-      padding: 0 20px;
-      z-index: 2;
-      position: relative;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s, transform 0.8s;
-    }
+@keyframes bg{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
 
-    p.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+h1,p{
+  color:white;
+  text-shadow:0 0 20px rgba(255,255,255,.4);
+  opacity:0;
+  transform:translateY(25px);
+  transition:.8s ease;
+  padding:0 20px;
+}
 
-    .buttons {
-      margin-top: 50px;
-      position: relative;
-      z-index: 2;
-    }
+.show{
+  opacity:1;
+  transform:translateY(0);
+}
 
-    button {
-      padding: 15px 30px;
-      font-size: 18px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      position: absolute;
-      transition: 0.2s ease;
-      z-index: 2;
-    }
+.buttons{
+  position:relative;
+  margin-top:40px;
+}
 
-    .yesBtn {
-      background-color: #ff4d6d;
-      color: white;
-    }
+button{
+  padding:15px 30px;
+  font-size:18px;
+  border:none;
+  border-radius:20px;
+  cursor:pointer;
+  position:absolute;
+  transition:.2s;
+}
 
-    .noBtn {
-      background-color: #444;
-      color: white;
-    }
+button:hover{
+  transform:scale(1.15);
+}
 
-    #fireworksCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-    }
-  </style>
+.yes{background:#ff4d6d;color:white;}
+.no{background:#333;color:white;}
+
+.option{
+  background:white;
+  margin:12px auto;
+  padding:14px;
+  border-radius:18px;
+  max-width:300px;
+  cursor:pointer;
+  animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+}
+
+canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+}
+</style>
 </head>
+
 <body>
 
-  <h1 id="question">Oumenia, do you love me? 💖</h1>
+<h1 id="q"></h1>
+<p id="sub"></p>
 
-  <div class="buttons">
-    <button id="yesBtn" class="yesBtn" style="left: 40%;">Yes 💘</button>
-    <button id="noBtn" class="noBtn" style="left: 55%;">No 😅</button>
-  </div>
+<div class="buttons" id="btns">
+  <button id="yes" class="yes" style="left:30%">Yes 💘</button>
+  <button id="no" class="no" style="left:55%">No 😅</button>
+</div>
 
-  <canvas id="fireworksCanvas"></canvas>
+<audio id="music" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
 
-  <script>
-    const yesBtn = document.getElementById("yesBtn");
-    const noBtn = document.getElementById("noBtn");
-    const question = document.getElementById("question");
+<canvas id="hearts"></canvas>
 
-    let noClickCount = 0;
-    let yesClickCount = 0;
+<script>
+const q=document.getElementById("q");
+const sub=document.getElementById("sub");
+const yes=document.getElementById("yes");
+const no=document.getElementById("no");
+const btns=document.getElementById("btns");
+const music=document.getElementById("music");
 
-    // Animate text in
-    function showText(element) {
-      element.classList.remove('visible');
-      setTimeout(() => element.classList.add('visible'), 50);
+function show(el){el.classList.remove("show");setTimeout(()=>el.classList.add("show"),50);}
+
+let y=0,n=0;
+q.textContent="Oumenia, do you love me? 💖";show(q);
+
+document.body.addEventListener("click",()=>music.play(),{once:true});
+
+yes.onclick=()=>{
+  y++;
+  const t=["Really 💘","Really really 💘","Really really really 💘","I know you do 💖"];
+  if(y<=4){yes.textContent=t[y-1];}
+  if(y===4)setTimeout(loveAmount,700);
+};
+
+no.onclick=()=>{
+  n++;
+  const t=["Think again 🤔","Are you sure? 😅","I know you love me stop playing around 💖"];
+  if(n<=3)no.textContent=t[n-1];
+};
+
+function loveAmount(){
+  q.textContent="How much do you love me? 🥺";show(q);
+  btns.innerHTML="";
+  ["Burj Khalifa","The Ocean","The World","Space","The Entire Galaxy"].forEach(txt=>{
+    const d=document.createElement("div");
+    d.className="option";
+    d.textContent=txt;
+    d.onclick=()=>{
+      q.textContent="You don’t love me anymore 😢";show(q);
+      setTimeout(valentine,1000);
+    };
+    btns.appendChild(d);
+  });
+}
+
+function valentine(){
+  btns.innerHTML="";
+  btns.appendChild(yes);btns.appendChild(no);
+  yes.textContent="Yes 💘";no.textContent="No 😅";
+  yes.style.left="30%";no.style.left="55%";
+  q.textContent="Will you be my Valentine? 💖";show(q);
+  let c=0;
+  yes.onclick=()=>{
+    c++;
+    const t=["You sure? 😏","100% sure? 😏","Okay say yes 😌","YES 💘"];
+    yes.textContent=t[Math.min(c-1,3)];
+    if(c>=4)finale();
+  };
+  no.onmouseenter=()=>{
+    no.style.left=Math.random()*70+"%";
+    no.style.top=Math.random()*70+"%";
+  };
+}
+
+function finale(){
+  btns.remove();
+  q.textContent="💖 Happy Anniversary My Love 💖";show(q);
+  sub.textContent="I’ve never been happier. Thank you for being part of my life. I’m so glad I met you — you make the happiest (horniest, minor details 😏) man on earth. I love you so much ❤️";
+  show(sub);
+  hearts();
+}
+
+function hearts(){
+  const c=document.getElementById("hearts");
+  const x=c.getContext("2d");
+  c.width=innerWidth;c.height=innerHeight;
+  let p=[];
+  setInterval(()=>{
+    for(let i=0;i<10;i++){
+      p.push({x:Math.random()*c.width,y:c.height+20,s:Math.random()*20+10,a:1});
     }
-
-    showText(question);
-
-    // Function to change background gradient
-    function changeBackground(colors) {
-      document.body.style.background = colors;
-    }
-
-    // First question: No button
-    noBtn.addEventListener("click", () => {
-      noClickCount++;
-      if (noClickCount === 1) noBtn.textContent = "Think again 🤔";
-      else if (noClickCount === 2) noBtn.textContent = "Are you sure? 😅";
-      else if (noClickCount === 3) noBtn.textContent = "I know you love me, stop playing around 💖";
+  },400);
+  function anim(){
+    x.clearRect(0,0,c.width,c.height);
+    p.forEach((e,i)=>{
+      e.y-=1.5;e.a-=0.002;
+      x.fillStyle=`rgba(255,80,120,${e.a})`;
+      x.font=e.s+"px Arial";
+      x.fillText("💖",e.x,e.y);
+      if(e.a<=0)p.splice(i,1);
     });
-
-    // First question: Yes button
-    yesBtn.addEventListener("click", () => {
-      yesClickCount++;
-      if (yesClickCount === 1) yesBtn.textContent = "Really 💘";
-      else if (yesClickCount === 2) yesBtn.textContent = "Really really 💘";
-      else if (yesClickCount === 3) yesBtn.textContent = "Really really really 💘";
-      else if (yesClickCount === 4) {
-        yesBtn.textContent = "I know you do 💘";
-
-        setTimeout(() => {
-          // Change background for Valentine question
-          changeBackground('linear-gradient(to right, #ff9a9e, #fad0c4)');
-
-          // Transition to Valentine question
-          question.textContent = "Will you be my Valentine? 💖";
-          showText(question);
-
-          yesBtn.textContent = "Yes 💘";
-          noBtn.textContent = "No 😅";
-          yesBtn.style.left = "40%";
-          noBtn.style.left = "55%";
-          noBtn.style.top = "0px";
-
-          // Make "No" button move randomly
-          function moveButton() {
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            noBtn.style.left = x + "px";
-            noBtn.style.top = y + "px";
-          }
-
-          noBtn.addEventListener("mouseenter", moveButton);
-          noBtn.addEventListener("click", moveButton);
-
-          // Final Valentine Yes click shows anniversary message with fireworks
-          yesBtn.onclick = () => {
-            changeBackground('linear-gradient(to right, #ffdde1, #ff9a9e)');
-
-            question.textContent = "💖 Happy Anniversary, my love 💖";
-            showText(question);
-
-            yesBtn.remove();
-            noBtn.remove();
-
-            const p = document.createElement("p");
-            p.innerHTML = "I've never been happier. Thank you for being a part of my life. I'm so glad I met you—you make the happiest (horniest, minor details, don't think about it) man on earth. I love you so much ❤️";
-            document.body.appendChild(p);
-            showText(p);
-
-            startFireworks();
-          };
-        }, 300);
-      }
-    });
-
-    // FIREWORKS ANIMATION OVER TRANSPARENT BACKGROUND
-    function startFireworks() {
-      const canvas = document.getElementById('fireworksCanvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      const particles = [];
-
-      function random(min, max) { return Math.random() * (max - min) + min; }
-
-      class Particle {
-        constructor(x, y, color) {
-          this.x = x;
-          this.y = y;
-          this.color = color;
-          this.radius = 2 + Math.random() * 2;
-          this.speedX = random(-5, 5);
-          this.speedY = random(-5, 5);
-          this.alpha = 1;
-          this.decay = random(0.01, 0.03);
-        }
-        update() { this.x += this.speedX; this.y += this.speedY; this.alpha -= this.decay; }
-        draw() {
-          ctx.save();
-          ctx.globalAlpha = this.alpha;
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-          ctx.fill();
-          ctx.restore();
-        }
-      }
-
-      function createFirework() {
-        const x = random(100, canvas.width - 100);
-        const y = random(50, canvas.height / 2);
-        const colors = ['#ff4d6d', '#ffec61', '#42e695', '#ff7eb3', '#f9c74f'];
-        for (let i = 0; i < 50; i++) {
-          particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
-        }
-      }
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.update();
-          p.draw();
-          if (p.alpha <= 0) particles.splice(i, 1);
-        }
-        requestAnimationFrame(animate);
-      }
-
-      setInterval(createFirework, 500);
-      animate();
-    }
-
-    window.addEventListener('resize', () => {
-      const canvas = document.getElementById('fireworksCanvas');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-
-  </script>
+    requestAnimationFrame(anim);
+  }
+  anim();
+}
+</script>
 
 </body>
 </html>
