@@ -13,10 +13,11 @@ body{
   height:100vh;
   overflow:hidden;
   text-align:center;
-  font-family:'Arial',sans-serif;
-  background:linear-gradient(270deg,#ff758c,#ff7eb3,#ffc3a0,#ff758c);
+  font-family:Arial,sans-serif;
+  background:linear-gradient(270deg,#ff758c,#ff7eb3,#ffc3a0);
   background-size:600% 600%;
-  animation:bg 18s ease infinite;
+  animation:bg 20s ease infinite;
+  transition:filter 2s ease, opacity 2s ease;
 }
 
 @keyframes bg{
@@ -25,48 +26,49 @@ body{
   100%{background-position:0% 50%}
 }
 
+.dim{filter:brightness(0.6)}
+.fade{opacity:0}
+
 h1,p{
   color:white;
   text-shadow:0 0 20px rgba(255,255,255,.4);
   opacity:0;
   transform:translateY(25px);
-  transition:.8s ease;
+  transition:.9s ease;
   padding:0 20px;
 }
 
-.show{
-  opacity:1;
-  transform:translateY(0);
-}
+.show{opacity:1;transform:translateY(0)}
 
 .buttons{
-  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
   margin-top:40px;
 }
 
 button{
-  padding:15px 30px;
+  padding:16px 36px;
   font-size:18px;
   border:none;
-  border-radius:20px;
+  border-radius:24px;
   cursor:pointer;
-  position:absolute;
-  transition:.2s;
+  transition:.3s;
+  min-width:240px;
 }
 
-button:hover{
-  transform:scale(1.15);
-}
+button:hover{transform:scale(1.12)}
 
-.yes{background:#ff4d6d;color:white;}
-.no{background:#333;color:white;}
+.yes{background:#ff4d6d;color:white}
+.no{background:#333;color:white}
 
 .option{
   background:white;
-  margin:12px auto;
+  margin:14px auto;
   padding:14px;
   border-radius:18px;
-  max-width:300px;
+  max-width:320px;
   cursor:pointer;
   animation:pulse 2s infinite;
 }
@@ -82,6 +84,12 @@ canvas{
   width:100%;height:100%;
   pointer-events:none;
 }
+
+.save{
+  margin-top:30px;
+  background:white;
+  color:#ff4d6d;
+}
 </style>
 </head>
 
@@ -91,8 +99,8 @@ canvas{
 <p id="sub"></p>
 
 <div class="buttons" id="btns">
-  <button id="yes" class="yes" style="left:30%">Yes 💘</button>
-  <button id="no" class="no" style="left:55%">No 😅</button>
+  <button id="yes" class="yes">Yes 💘</button>
+  <button id="no" class="no">No 😅</button>
 </div>
 
 <audio id="music" loop>
@@ -109,18 +117,42 @@ const no=document.getElementById("no");
 const btns=document.getElementById("btns");
 const music=document.getElementById("music");
 
-function show(el){el.classList.remove("show");setTimeout(()=>el.classList.add("show"),50);}
+music.volume=0;
+
+function fadeMusic(to){
+  const i=setInterval(()=>{
+    music.volume=Math.min(1,Math.max(0,music.volume+(to?0.02:-0.02)));
+    if(music.volume===to)clearInterval(i);
+  },120);
+}
+
+document.body.addEventListener("click",()=>{
+  music.play();
+  fadeMusic(0.6);
+},{once:true});
+
+function show(el){
+  el.classList.remove("show");
+  setTimeout(()=>el.classList.add("show"),50);
+}
+
+function transition(next){
+  document.body.classList.add("dim");
+  setTimeout(()=>{
+    document.body.classList.remove("dim");
+    next();
+  },2000);
+}
 
 let y=0,n=0;
-q.textContent="Oumenia, do you love me? 💖";show(q);
-
-document.body.addEventListener("click",()=>music.play(),{once:true});
+q.textContent="Oumenia, do you love me? 💖";
+show(q);
 
 yes.onclick=()=>{
   y++;
   const t=["Really 💘","Really really 💘","Really really really 💘","I know you do 💖"];
-  if(y<=4){yes.textContent=t[y-1];}
-  if(y===4)setTimeout(loveAmount,700);
+  if(y<=4)yes.textContent=t[y-1];
+  if(y===4)setTimeout(()=>transition(loveAmount),5500);
 };
 
 no.onclick=()=>{
@@ -130,15 +162,17 @@ no.onclick=()=>{
 };
 
 function loveAmount(){
-  q.textContent="How much do you love me? 🥺";show(q);
+  q.textContent="How much do you love me? 🥺";
+  show(q);
   btns.innerHTML="";
-  ["Burj Khalifa","The Ocean","The World","Space","The Entire Galaxy"].forEach(txt=>{
+  ["Burj Khalifa","The Ocean","The World","Space","The Entire Galaxy"].forEach(t=>{
     const d=document.createElement("div");
     d.className="option";
-    d.textContent=txt;
+    d.textContent=t;
     d.onclick=()=>{
-      q.textContent="You don’t love me anymore 😢";show(q);
-      setTimeout(valentine,1000);
+      q.textContent="You don’t love me anymore 😢";
+      show(q);
+      setTimeout(()=>transition(valentine),5500);
     };
     btns.appendChild(d);
   });
@@ -148,27 +182,34 @@ function valentine(){
   btns.innerHTML="";
   btns.appendChild(yes);btns.appendChild(no);
   yes.textContent="Yes 💘";no.textContent="No 😅";
-  yes.style.left="30%";no.style.left="55%";
-  q.textContent="Will you be my Valentine? 💖";show(q);
+  q.textContent="Will you be my Valentine? 💖";
+  show(q);
   let c=0;
   yes.onclick=()=>{
     c++;
     const t=["You sure? 😏","100% sure? 😏","Okay say yes 😌","YES 💘"];
     yes.textContent=t[Math.min(c-1,3)];
-    if(c>=4)finale();
+    if(c>=4)setTimeout(()=>transition(finale),5500);
   };
   no.onmouseenter=()=>{
-    no.style.left=Math.random()*70+"%";
-    no.style.top=Math.random()*70+"%";
+    no.style.transform=`translateX(${Math.random()*40-20}px)`;
   };
 }
 
 function finale(){
-  btns.remove();
-  q.textContent="💖 Happy Anniversary My Love 💖";show(q);
-  sub.textContent="I’ve never been happier. Thank you for being part of my life. I’m so glad I met you — you make the happiest (horniest, minor details 😏) man on earth. I love you so much ❤️";
+  fadeMusic(1);
+  btns.innerHTML="";
+  q.textContent="💖 Happy Anniversary My Love 💖";
+  show(q);
+  sub.textContent=
+  "I’ve never been happier. Thank you for being part of my life. I’m so glad I met you — you make the happiest (horniest, minor details 😏) man on earth. I love you so much ❤️";
   show(sub);
   hearts();
+  const save=document.createElement("button");
+  save.textContent="💌 Save this moment";
+  save.className="save";
+  save.onclick=()=>alert("Screenshot this moment 💖");
+  btns.appendChild(save);
 }
 
 function hearts(){
@@ -177,15 +218,15 @@ function hearts(){
   c.width=innerWidth;c.height=innerHeight;
   let p=[];
   setInterval(()=>{
-    for(let i=0;i<10;i++){
-      p.push({x:Math.random()*c.width,y:c.height+20,s:Math.random()*20+10,a:1});
+    for(let i=0;i<6;i++){
+      p.push({x:Math.random()*c.width,y:c.height+20,a:1,s:Math.random()*18+10});
     }
-  },400);
+  },500);
   function anim(){
     x.clearRect(0,0,c.width,c.height);
     p.forEach((e,i)=>{
-      e.y-=1.5;e.a-=0.002;
-      x.fillStyle=`rgba(255,80,120,${e.a})`;
+      e.y-=1.2;e.a-=0.002;
+      x.fillStyle=`rgba(255,90,140,${e.a})`;
       x.font=e.s+"px Arial";
       x.fillText("💖",e.x,e.y);
       if(e.a<=0)p.splice(i,1);
